@@ -15,7 +15,7 @@ app.factory("simpleState", function() {
         },
         "go": function (edge, $scope) {
           var path = this.get_paths()[edge];
-          var next_state;
+          var next_state = current_state;
           if (path) {
             if (typeof path === 'string') {
               next_state = path;
@@ -29,7 +29,7 @@ app.factory("simpleState", function() {
               notify_state_change(next_state);
             }
           }
-          return next_state; // this might return undefined, indicating no path
+          return next_state; // this might return an unchanged state, indicating that no path was traversed.
         }
       };
     }
