@@ -1,14 +1,14 @@
 // little but instructive
 
-var app = angular.module("littleStateApp", ['stateMachine']);
+var app = angular.module("littleStateApp", []);
 
-app.controller("littleStateCtrl", function($scope) {
+app.controller("littleStateCtrl", function($scope, simpleState) {
   $scope.message = "";
   $scope.left  = function() {return 100 - $scope.message.length;};
   $scope.clear = function() {$scope.message = "";};
   $scope.save  = function() {alert("Note Saved");};
   
-  $scope.sm = stateMachine.init('unchanged', {
+  $scope.sm = simpleState.init('unchanged', {
     "states":{
       "unchanged":{
         "trans":{
@@ -61,4 +61,42 @@ app.controller("littleStateCtrl", function($scope) {
     $scope.template = $scope.sm.go(path, $scope);
   };
   
+});
+
+// data driven templates (with data binding)
+// attrabutes:
+//     data-driven-template
+//     content=""
+//
+app.directive('stateView', function ($compile, $templateCache) {
+
+  var linker = function(scope, element, attrs) {
+    //alert(JSON.stringify(attrs.define_fn));
+    scope.$watch("current_state", function() {
+      var state, template;
+
+      if (scope.content.last_state) {
+        template = scope.content.last_state + '.html';
+      }
+      else {
+        if (scope.content.id === 'new') {
+          template = 'new_edit.html';
+        }
+        else {
+          template = 'unchanged.html';
+        }
+      }
+      element.html($templateCache.get(template));
+      $compile(element.contents())(scope);
+    });
+  };
+
+  return {
+    restrict: "A",
+    replace: true,
+    link: linker,
+    scope: {
+      content:'=content'
+    }
+  };
 });
