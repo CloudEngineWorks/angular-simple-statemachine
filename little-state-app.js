@@ -3,10 +3,6 @@
 var app = angular.module("littleStateApp", []);
 
 app.controller("littleStateCtrl", function($scope, simpleState) {
-  $scope.message = "";
-  $scope.left  = function() {return 100 - $scope.message.length;};
-  $scope.clear = function() {$scope.message = "";};
-  $scope.save  = function() {alert("Note Saved");};
   
   $scope.sm = simpleState.init('unchanged', {
     "states":{
@@ -55,6 +51,9 @@ app.controller("littleStateCtrl", function($scope, simpleState) {
         }
       }
     }
+  }, 
+  function(new_state) {
+    $scope.current_state = new_state;
   });
   
   $scope.go = function (path) {
