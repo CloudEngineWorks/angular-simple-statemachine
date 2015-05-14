@@ -72,21 +72,18 @@ app.directive('stateView', function ($compile, $templateCache) {
   var linker = function(scope, element, attrs) {
     //alert(JSON.stringify(attrs.define_fn));
     scope.$watch("current_state", function() {
-      var state, template;
+      var state, template, template_html, contents;
 
-      if (scope.content.last_state) {
-        template = scope.content.last_state + '.html';
+      if (scope.content) {
+        template = scope.content.current_state + '.html';
       }
       else {
-        if (scope.content.id === 'new') {
-          template = 'new_edit.html';
-        }
-        else {
-          template = 'unchanged.html';
-        }
+        template = 'view-state-initial.html';
       }
-      element.html($templateCache.get(template));
-      $compile(element.contents())(scope);
+      template_html = $templateCache.get(template);
+      element.html(template_html);
+      contents = element.contents();
+      $compile(contents)(scope);
     });
   };
 
