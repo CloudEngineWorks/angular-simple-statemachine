@@ -3,6 +3,7 @@
 // exists and an enterState method returns true.
 // An angular factory returns a singelton, but init function returns an Object, so that you may use
 // several state machines at once.  see below for usage.
+(function (angular) {
 app.factory("inaState", function () {
     return {
         init: function (machine, opt_init_signal) {
@@ -28,7 +29,7 @@ app.factory("inaState", function () {
                     return '';
                 },
                 'getProperty': function getProperty(property_name) {
-                    var display_state = machine.current_state
+                    var display_state = machine.current_state;
                     return display_state[property_name];
                 }
             };
@@ -39,7 +40,7 @@ app.factory("inaState", function () {
         }
     };
 });
-
+})(window.angular);
 //// Usage:
 //// Define a Statemachine with states and transitions
 //// Note: States can have properties and an 'enterState' method.

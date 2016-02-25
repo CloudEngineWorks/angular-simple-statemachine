@@ -1,98 +1,34 @@
 // little but instructive
+(function(angular) {
+app = angular.module("littleStateApp", []);
 
-var app = angular.module("littleStateApp", []);
-
-app.controller("littleStateCtrl", function($scope, simpleState) {
+app.controller("littleStateCtrl", function($scope, inaState) {
   
-  $scope.sm = simpleState.init('unchanged', {
-    "states":{
-      "unchanged":{
-        "trans":{
-          "edit": function ($scope) {
-            $scope.previous_content = $scope.content;
-            return 'editing';
-          },
-          "mark_for_removal": "crossout"
+  $scope.exampleStatemachine = {
+    states: {
+       'start': {},
+       'clearing_mind': { clearing_mind_icon: true },
+       'blank_slate': {},
+       'thinking': { thinking: true, thinking_icon: true },
+       'thinking_error': { bad_idea: true, need_a_new_idea:true },
+       'clearing_mind_error': { clearing_mind: true, display_error: true, 
+          enterState: function () { $timeout(function () { get_clear_mind(); }, 1000); return true; }
         }
-      },
-      "editing":{
-        "trans":{
-          "accept": function ($scope) {
-            if ($scope.compare_courses($scope.previous_content, $scope.content)) {
-              delete $scope.previous_content;
-              return 'unchanged';
-            }
-            else {
-              return 'changed';
-            }
-          },
-          "revert": function ($scope) {
-            $scope.content = angular.extend({}, $scope.previous_content);
-            $scope.content = $scope.content;
-            delete $scope.previous_content;
-            return 'unchanged';
-          }
-        }
-      },
-      "changed":{
-        "trans":{
-          "edit": "editing",
-          "restore_original": function ($scope) {
-            $scope.$parent.$parent.content = angular.extend({}, $scope.previous_content);
-            $scope.content = $scope.$parent.$parent.content;
-            delete $scope.previous_content;
-            return 'unchanged';
-          }
-        }
-      },
-      "crossout": {
-        "trans": {
-          "restore_original": "unchanged"
-        }
-      }
-    }
-  }, 
-  function(new_state) {
-    $scope.current_state = new_state;
-  });
-  
-  $scope.go = function (path) {
-    $scope.template = $scope.sm.go(path, $scope);
+    },
+    trans: {
+       'start': { 'init': 'clearing_mind' },
+       'clearing_mind': { 'success': 'blank_slate', 'fail': 'clearing_mind_error' },
+       'blank_slate': { 'idea': 'thinking' },
+       'thinking': { 'success': 'blank_slate', 'fail': 'thinking_error' },
+       'thinking_error': { 'idea': 'thinking' },
+       'clearing_mind_error': { 'init': 'clearing_mind' }
+    },
+    current_state_name: 'start',
+    current_state: {}
   };
+  
+  $scope.myInAStateMachine = inaState.init($scope.exampleStatemachine, 'init');
+  
   
 });
-
-// data driven templates (with data binding)
-// attrabutes:
-//     data-driven-template
-//     content=""
-//
-app.directive('stateView', function ($compile, $templateCache) {
-
-  var linker = function(scope, element, attrs) {
-    //alert(JSON.stringify(attrs.define_fn));
-    scope.$watch("current_state", function() {
-      var state, template, template_html, contents;
-
-      if (scope.content) {
-        template = scope.content.current_state + '.html';
-      }
-      else {
-        template = 'view-state-initial.html';
-      }
-      template_html = $templateCache.get(template);
-      element.html(template_html);
-      contents = element.contents();
-      $compile(contents)(scope);
-    });
-  };
-
-  return {
-    restrict: "A",
-    replace: true,
-    link: linker,
-    scope: {
-      content:'=content'
-    }
-  };
-});
+})(window.angular);
